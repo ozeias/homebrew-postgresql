@@ -1,8 +1,8 @@
 # PostgreSQL and PostGIS
 
 This is a brew tap for installing PostgreSQL and PostGIS. Currently this tap has the following formulas:
-* `postgis@15`
-* `postgresql@15`
+* `postgis@15` and `postgis@16`
+* `postgresql@15` and `postgresql@16`
 
 ## How do I install these formulae?
 
