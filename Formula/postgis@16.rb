@@ -4,7 +4,7 @@ class PostgisAT16 < Formula
   url "https://download.osgeo.org/postgis/source/postgis-3.3.6.tar.gz"
   sha256 "7e898063a9f50f21f42277bfb687bbb9bf5cb6f61ce160031c825403a66911b5"
   license "GPL-2.0-or-later"
-  revision 1
+  revision 2
 
   livecheck do
     url "https://download.osgeo.org/postgis/source/"
@@ -42,6 +42,12 @@ class PostgisAT16 < Formula
 
     # C++17 is required.
     ENV.append "CXXFLAGS", "-std=c++17"
+
+    # Workaround for: Built-in generator --c_out specifies a maximum edition
+    # PROTO3 which is not the protoc maximum 2023.
+    # Remove when fixed in `protobuf-c`:
+    # https://github.com/protobuf-c/protobuf-c/pull/711
+    ENV["PROTOCC"] = Formula["protobuf"].opt_bin/"protoc"
 
     ENV["PG_CONFIG"] = postgresql.opt_bin/"pg_config"
 
