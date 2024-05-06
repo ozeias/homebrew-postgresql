@@ -40,6 +40,10 @@ class PostgresqlAT16 < Formula
     ENV.prepend "LDFLAGS", "-L#{Formula["openssl@3"].opt_lib} -L#{Formula["readline"].opt_lib}"
     ENV.prepend "CPPFLAGS", "-I#{Formula["openssl@3"].opt_include} -I#{Formula["readline"].opt_include}"
 
+    # Fix 'libintl.h' file not found for extensions
+    ENV.prepend "LDFLAGS", "-L#{Formula["gettext"].opt_lib}"
+    ENV.prepend "CPPFLAGS", "-I#{Formula["gettext"].opt_include}"
+
     args = %W[
       --disable-debug
       --prefix=#{prefix}
