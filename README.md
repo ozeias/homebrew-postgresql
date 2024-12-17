@@ -10,7 +10,7 @@ This is a brew tap for installing PostgreSQL and PostGIS. Currently this tap has
 
 Or `brew tap ozeias/postgresql` and then `brew install <formula>`.
 
-## Install PostgreSQL 15.6 with PostGIS 3.3
+## Install PostgreSQL 15 with PostGIS 3.4
 
 Please ensure that you do not have any other installation of PostgreSQL 15 via Homebrew:
 
@@ -27,6 +27,24 @@ To run:
 More information:
 
 `brew info ozeias/postgresql/postgresql@15`
+
+## Install PostgreSQL 16 with PostGIS 3.4
+
+Please ensure that you do not have any other installation of PostgreSQL 15 via Homebrew:
+
+`brew rm postgresql@16`
+
+To install:
+
+`brew install ozeias/postgresql/postgis@16`
+
+To run:
+
+`brew services start ozeias/postgresql/postgresql@16`
+
+More information:
+
+`brew info ozeias/postgresql/postgresql@16`
 
 ## Documentation
 
