@@ -19,14 +19,13 @@ class PostgisAT16 < Formula
     depends_on "libtool" => :build
   end
 
-  depends_on "ozeias/postgresql/postgresql@16"
-
   depends_on "gpp" => :build
   depends_on "pkg-config" => :build
   depends_on "gdal" # for GeoJSON and raster handling
   depends_on "geos"
   depends_on "icu4c"
   depends_on "json-c" # for GeoJSON and raster handling
+  depends_on "ozeias/postgresql/postgresql@16"
   depends_on "pcre2"
   depends_on "proj"
   depends_on "protobuf-c" # for MVT (map vector tiles) support
