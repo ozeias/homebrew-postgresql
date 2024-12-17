@@ -1,10 +1,10 @@
 class PostgisAT15 < Formula
   desc "Adds support for geographic objects to PostgreSQL"
   homepage "https://postgis.net/"
-  url "https://download.osgeo.org/postgis/source/postgis-3.3.6.tar.gz"
-  sha256 "7e898063a9f50f21f42277bfb687bbb9bf5cb6f61ce160031c825403a66911b5"
+  url "https://download.osgeo.org/postgis/source/postgis-3.4.2.tar.gz"
+  sha256 "c8c874c00ba4a984a87030af6bf9544821502060ad473d5c96f1d4d0835c5892"
   license "GPL-2.0-or-later"
-  revision 2
+  revision 3
 
   livecheck do
     url "https://download.osgeo.org/postgis/source/"
@@ -19,13 +19,14 @@ class PostgisAT15 < Formula
     depends_on "libtool" => :build
   end
 
+  depends_on "ozeias/postgresql/postgresql@15"
+
   depends_on "gpp" => :build
   depends_on "pkg-config" => :build
   depends_on "gdal" # for GeoJSON and raster handling
   depends_on "geos"
   depends_on "icu4c"
   depends_on "json-c" # for GeoJSON and raster handling
-  depends_on "ozeias/postgresql/postgresql@15"
   depends_on "pcre2"
   depends_on "proj"
   depends_on "protobuf-c" # for MVT (map vector tiles) support
@@ -43,14 +44,6 @@ class PostgisAT15 < Formula
     # C++17 is required.
     ENV.append "CXXFLAGS", "-std=c++17"
 
-    # Workaround for: Built-in generator --c_out specifies a maximum edition
-    # PROTO3 which is not the protoc maximum 2023.
-    # Remove when fixed in `protobuf-c`:
-    # https://github.com/protobuf-c/protobuf-c/pull/711
-    ENV["PROTOCC"] = Formula["protobuf"].opt_bin/"protoc"
-
-    ENV["PG_CONFIG"] = postgresql.opt_bin/"pg_config"
-
     args = [
       "--with-projdir=#{Formula["proj"].opt_prefix}",
       "--with-jsondir=#{Formula["json-c"].opt_prefix}",
@@ -64,35 +57,20 @@ class PostgisAT15 < Formula
     ]
 
     system "./autogen.sh" if build.head?
-    # Fixes config/install-sh: No such file or directory
-    # This is caused by a misalignment between ./configure in postgresql@15 and postgis
-    mv "build-aux", "config"
-    inreplace %w[configure utils/Makefile.in] do |s|
-      s.gsub! "build-aux", "config"
-    end
-    system "./configure", *args, *std_configure_args
+
+    system "./configure", *args, *std_configure_args(prefix: HOMEBREW_PREFIX)
     system "make"
 
-    # Install to a staging directory to circumvent the hardcoded install paths
-    # set by the PGXS makefiles.
-    mkdir "stage"
-    system "make", "install", "DESTDIR=#{buildpath}/stage"
-
-    # Some files are stored in the stage directory with the cellar prefix of
-    # the version of postgresql used to build postgis.  Since we copy these
-    # files into the postgis keg and symlink them to HOMEBREW_PREFIX, postgis
-    # only needs to be rebuilt when there is a new major version of postgresql.
-    postgresql_stage_path = File.join("stage", postgresql.prefix.realpath)
-    bin.install (buildpath/postgresql_stage_path/"bin").children
-    doc.install (buildpath/postgresql_stage_path/"share/doc").children
-
-    stage_path = File.join("stage", HOMEBREW_PREFIX)
-    lib.install (buildpath/stage_path/"lib").children
-    share.install (buildpath/stage_path/"share").children
+    # Override the hardcoded install paths set by the PGXS makefiles
+    system "make", "install", "bindir=#{bin}",
+                              "docdir=#{doc}",
+                              "mandir=#{man}",
+                              "pkglibdir=#{lib/postgresql.name}",
+                              "datadir=#{share/postgresql.name}",
+                              "PG_SHAREDIR=#{share/postgresql.name}"
 
     # Extension scripts
     bin.install %w[
-      utils/create_undef.pl
       utils/create_upgrade.pl
       utils/postgis_restore.pl
       utils/profile_intersects.pl
